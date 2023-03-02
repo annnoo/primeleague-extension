@@ -1,16 +1,32 @@
-import { Injectable } from '@nestjs/common';
-import puppeteer, { ElementHandle } from 'puppeteer'
+import { Injectable, Logger } from '@nestjs/common';
+import puppeteer, { Browser, ElementHandle } from 'puppeteer'
 
 const primePage = 'https://www.primeleague.gg/coverages/30730-division-1-spring-split-2023';
 
 @Injectable()
 export class PrimeleagueScraperService {
 
+
+  logger = new Logger("test")
+  browser: Browser;
+  constructor(){
+    puppeteer.launch({headless: false}).then(b => this.browser = b)
+  }
+
+  
+
   async getPage() {
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
+    if(!this.browser){
+      this.logger.warn("Browser not Initialized");
+      this.browser = await puppeteer.launch({headless: false});
+await new Promise(r => setTimeout(r, 2000));
+    }
+    const page = await this.browser.newPage();
     await page.goto(primePage)
     await page.setViewport({ width: 1600, height: 900 });
+    
+
+    await page.waitForSelector(".ranking");
 
     const a = await page.$$(".ranking");
     const table = a[0];
@@ -22,8 +38,22 @@ export class PrimeleagueScraperService {
       const place = placeElem.querySelector('a').innerText;
       const teamLink = placeElem.querySelector('a').href;
 
-      let teamImgSrc = teamElem.querySelector('img').src;
+      let elems = teamElem.querySelectorAll('img');
+      let teamImgSrc = '';
+      if(elems.length == 1){
+        teamImgSrc = elems[0].src;
+      }
+      if(elems.length > 1) {
+        elems = teamElem.querySelectorAll('img.img-light')
+        teamImgSrc = elems[0].dataset['src']
+      }
+      console.log(elems);
+
+
       teamImgSrc = teamImgSrc.substring(0, teamImgSrc.indexOf('?'));
+
+      console.log(teamElem.innerHTML)
+      console.log(teamImgSrc)
 
       const teamName = teamElem.querySelector('span').innerText;
 
@@ -38,6 +68,11 @@ export class PrimeleagueScraperService {
       };
 
     })));
+    const standings = tableStandings.filter(i => i.status === 'fulfilled').map((i) => {
+      if(i.status === 'fulfilled'){
+        return i.value;
+      }
+    })
 
     const tableGames = await this.parseStandingsTable(a[1])
 
@@ -45,14 +80,18 @@ export class PrimeleagueScraperService {
       return day.filter(i => i.teamA.slug === 'NNO' || i.teamB.slug === 'NNO');
     })
 
+
      return {
-      standings: tableStandings.filter(i => i.status === 'fulfilled'),
+      standings,
       games,
     };
   }
 
   async parseStandingsTable(containerElement: ElementHandle<Element>) {
 
+    if(!containerElement){
+      return []
+    }
     const dayHeaders = await containerElement.$$('h4');
     const tables = await containerElement.$$('table');
 
@@ -88,9 +127,6 @@ export class PrimeleagueScraperService {
 
         const standingSpans =standing.querySelectorAll('span');
 
-        console.log(standingSpans);
-
-        console.log(standingSpans[2]);
  
         let standingText =  ''
         if(standingSpans[2]){
