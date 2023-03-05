@@ -18,10 +18,6 @@ podman-build-backend:
   image:
     name: quay.io/podman/stable
 
-  rules:
-    - changes:
-      - backend/**/*
-
   script:
     # GitLab has a built-in Docker image registry, whose
     # parameters are set automatically. You can use some
