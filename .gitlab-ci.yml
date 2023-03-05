@@ -23,8 +23,8 @@ podman-build-backend:
     # parameters are set automatically. You can use some
     # other Docker registry though by changing the login and
     # image name.
-    - cd backend 
-    - podman build -t "$CI_REGISTRY_IMAGE/pl-api:$CI_COMMIT_SHA" -t "$CI_REGISTRY_IMAGE/primeleague-api:latest"  .
+    - cd primeleague-api 
+    - podman build -t "$CI_REGISTRY_IMAGE/primeleague-api:$CI_COMMIT_SHA" -t "$CI_REGISTRY_IMAGE/primeleague-api:latest"  .
     - podman push "$CI_REGISTRY_IMAGE/primeleague-api:$CI_COMMIT_SHA"
     - podman push "$CI_REGISTRY_IMAGE/primeleague-api:latest"
 
