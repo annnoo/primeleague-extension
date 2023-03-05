@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: primeleague-api
+  labels:
+    app: primeleague-api
+    date: "{{ now | unixEpoch }}"
+spec:
+  selector:
+    matchLabels:
+      app: primeleague-api
+  template:
+    metadata:
+      labels:
+        app: primeleague-api
+        date: "{{ now | unixEpoch }}"
+    spec:
+      containers:
+      - name: primeleague-api
+        # we use the backend image here
+        image: "{{ .Values.image.repository }}/primeleague-api:latest"
+        imagePullPolicy: Always 
+        envFrom:
+        - secretRef:
+            name: backend-secret  
+        ports:
+        - containerPort: 3000 
+      imagePullSecrets:
+        - name: gitlab-registry

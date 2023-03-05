@@ -1,0 +1,46 @@
+stages:
+  - build
+  - deploy 
+
+
+.podman-login:
+  retry: 2
+  before_script:
+    - podman login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+
+
+# Build and push the Docker image to the GitLab image registry
+# using Podman.
+podman-build-backend:
+  stage: build
+  extends: .podman-login
+
+  image:
+    name: quay.io/podman/stable
+
+  rules:
+    - changes:
+      - backend/**/*
+
+  script:
+    # GitLab has a built-in Docker image registry, whose
+    # parameters are set automatically. You can use some
+    # other Docker registry though by changing the login and
+    # image name.
+    - cd backend 
+    - podman build -t "$CI_REGISTRY_IMAGE/pl-api:$CI_COMMIT_SHA" -t "$CI_REGISTRY_IMAGE/primeleague-api:latest"  .
+    - podman push "$CI_REGISTRY_IMAGE/primeleague-api:$CI_COMMIT_SHA"
+    - podman push "$CI_REGISTRY_IMAGE/primeleague-api:latest"
+
+
+format:
+  stage: deploy 
+  when: always
+  image: devth/helm:latest
+  environment: production
+  script:
+    -  cd helm
+    -  helm dependency update
+    -  helm upgrade --install primeleague-api ./ --set image.tag=$CI_COMMIT_SHA --set image.repository=$CI_REGISTRY_IMAGE
+
+

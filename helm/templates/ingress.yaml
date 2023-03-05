@@ -1,0 +1,22 @@
+# templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: primeleague-api
+spec:
+  tls:
+  - hosts:
+    - pl-api.nno.gg
+    secretName: pl-api.nno.gg
+  rules:
+  - host: "pl-api.nno.gg"
+    http:
+      paths:
+      - path: / 
+        pathType: Prefix
+        backend:
+          service:
+            name: "primeleague-api"
+            port:
+              number: 3000
+   

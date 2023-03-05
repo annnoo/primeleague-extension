@@ -1,0 +1,17 @@
+
+postgresql:
+  enabled: true
+  auth:
+    username: user
+    password: password
+    database: db
+    postgresPassword: password
+
+service:
+  url: 'https://api.nno.gg'
+  externalPort: 5000
+
+
+frontend:
+  enabled: false
+
