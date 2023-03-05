@@ -41,6 +41,6 @@ format:
   script:
     -  cd helm
     -  helm dependency update
-    -  helm upgrade --install primeleague-api ./ --set image.tag=$CI_COMMIT_SHA --set image.repository=$CI_REGISTRY_IMAGE
+    -  helm upgrade --create-namespace -n primeleague --install primeleague-api ./ --set image.tag=$CI_COMMIT_SHA --set image.repository=$CI_REGISTRY_IMAGE 
 
 

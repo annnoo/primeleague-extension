@@ -52,9 +52,9 @@ export class PrimeleagueScraperService {
   async initBrowser() {
 
     // if skip chromium download is true, the executable path must be set, otherwise set it to undefined
-    const executablePath = process.env.SKIP_CHROMIUM_DOWNLOAD === 'true' ? '/usr/bin/chromium-browser' : undefined;
+    const executablePath = process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD === 'true' ? '/usr/bin/google-chrome' : undefined;
 
-    this.browser = await puppeteer.launch({ headless: true, executablePath });
+    this.browser = await puppeteer.launch({ headless: true, executablePath, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
 
 
     this.page = await this.browser.newPage();
