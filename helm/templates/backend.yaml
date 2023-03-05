@@ -20,9 +20,6 @@ spec:
         # we use the backend image here
         image: "{{ .Values.image.repository }}/primeleague-api:latest"
         imagePullPolicy: Always 
-        envFrom:
-        - secretRef:
-            name: backend-secret  
         ports:
         - containerPort: 3000 
       imagePullSecrets:

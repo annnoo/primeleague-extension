@@ -18,11 +18,11 @@ export class ScheduleService {
     }
 
     @Cron('0 */10 * * * *')
-    refreshDiv1Data() {
+    async refreshDiv1Data() {
         // refresh the data and store it in the cache if no error occures
         this.logger.log("Refreshing Div1 Data")
-        this.prime.reloadDiv1().then((data) => {
-            this.cacheManager.set('div1', data);
+        await this.prime.reloadDiv1().then((data) => {
+            this.cacheManager.set('div1', data, 3600 * 1000 * 12);
         }).catch(err => {
             this.logger.error(err)
         })
