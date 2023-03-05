@@ -1,8 +1,7 @@
-FROM node:16-alpine3.16 as production
+FROM node:16-slim as production
 WORKDIR /usr/src/app
 
 
-FROM node:slim
 
 # We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
